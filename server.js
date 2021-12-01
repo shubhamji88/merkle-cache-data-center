@@ -24,13 +24,17 @@ app.get("/tree", async (req, res)=>{
     return res.json(parsed_json)
 })
 
+app.get("/fetch", async (req, res) => {
+    const {file} = req.query;
+    
+    try{
+        // load the contents of the file using fs module
+        const data = await fs.readFileSync(`data/${file}`, 'utf8');
+        return res.send({error:true, payload: data})
 
-app.get("/fetch/:filename", async (req, res) => {
-    const {filename} = req.params;
-
-    // load the contents of the file using fs module
-    const data = await fs.readFileSync(`data/${filename}`, 'utf8');
-    return res.send(data)
+    }catch(e){
+        return res.status(404).json({error:true, payload:{}})
+    }
 })
 
 app.listen(3000, () => {
