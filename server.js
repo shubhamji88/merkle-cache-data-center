@@ -25,7 +25,7 @@ app.get("/tree", async (req, res)=>{
 })
 
 
-app.get("/new/:filename", async (req, res) => {
+app.get("/fetch/:filename", async (req, res) => {
     const {filename} = req.params;
 
     // load the contents of the file using fs module
