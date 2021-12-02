@@ -66,7 +66,7 @@ app.get("/compare", async (req, resp) => {
                     differenceList.push(clientJson[differenceHashList[hash]][0]);
             }
             if(differenceList.length === 0){
-                return resp.json({message:"No difference"})
+                return resp.json([])
             }
             return resp.json(differenceList);
         })
