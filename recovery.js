@@ -3,9 +3,14 @@ const fs = require("fs")
 const path  = require('path');
 
 
+const CONFIG = {
+    EDGE_NODE: "http://edge-node",
+    DATA_CENTER: "http://yashkumarverma-pdc-project.westus.cloudapp.azure.com"
+}
+
 // make request to edge-server to get faulty files
 const getFaultyFiles = async () => {
-    const response = await axios.get('http://edge-node/compare');
+    const response = await axios.get(`${CONFIG.EDGE_NODE}/compare`);
     return response.data;
 }
 
@@ -20,20 +25,22 @@ const filterFilesFromFilesAndDirectoryList = (files) => {
 }
 
 const downloadFiles = async (filelist) => {
-    
     for (let i = 0; i < filelist.length; i++) {
         const file = filelist[i];
-        const {data} = await axios.get(`http://edge-node/fetch?file=${file}`)
-        console.log({data})
+        const {data} = await axios.get(`${CONFIG.DATA_CENTER}/fetch?file=${file}`)
 
         if (data.error === true){
             console.error(`[cache:miss] : ${file}`);
         } else {
-            fs.writeFileSync(path.join(__dirname, file), data.payload);
-            console.log(`[cache:rewritten] : ${file}`);
+            const pathOfFileToHeal = path.join(__dirname,'data', file)
+            fs.unlink(pathOfFileToHeal, () => {
+                console.log(`[cache:invalidated] : ${file}`);
+                fs.writeFile(pathOfFileToHeal, data.payload, () => {
+                    console.log(`[cache:rebuilt] : ${file}`);
+                })
+            })
         }
     }
-
 }
 
 const worker = async () => {
