@@ -5,6 +5,8 @@ const express = require("express")
 const app = express()
 const fs = require('fs');
 var http = require('http');
+
+
 const markle = async function makeTree () {
     // Exec output contains both stderr and stdout outputs
     const command = await exec('python2 mt.py')
@@ -30,12 +32,13 @@ app.get("/fetch", async (req, res) => {
     try{
         // load the contents of the file using fs module
         const data = await fs.readFileSync(`data/${file}`, 'utf8');
-        return res.send({error:true, payload: data})
+        return res.send({error:false, payload: data})
 
     }catch(e){
         return res.status(404).json({error:true, payload:{}})
     }
 })
+
 app.get("/compare", async (req, resp) => {
     const data = await markle()
     const clientJson = JSON.parse(data.stdout)
